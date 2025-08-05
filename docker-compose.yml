@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  github-telegram-bot:
+    build: .
+    container_name: github-telegram-bot
+    ports:
+      - "5000:5000"  # Web interface
+      - "8000:8000"  # Webhook handler
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_USERNAME=${GITHUB_USERNAME}
+      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET:-}
+      - ALLOWED_CHAT_IDS=${ALLOWED_CHAT_IDS:-}
+      - WEBHOOK_HOST=0.0.0.0
+      - WEBHOOK_PORT=8000
+      - WEB_HOST=0.0.0.0
+      - WEB_PORT=5000
+      - DEBUG_MODE=false
+      - RATE_LIMIT_REQUESTS=10
+      - RATE_LIMIT_WINDOW=60
+      - NOTIFY_ON_PUSH=true
+      - NOTIFY_ON_ISSUES=true
+      - NOTIFY_ON_PULL_REQUESTS=true
+      - NOTIFY_ON_RELEASES=true
+    volumes:
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - bot-network
+
+networks:
+  bot-network:
+    driver: bridge
