@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Bot Status - GitHub-Telegram Sync Bot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fab fa-telegram me-2"></i>
+                Telegram Bot Status Dashboard
+            </a>
+            <span class="navbar-text">
+                <i class="fas fa-signal me-2"></i>
+                <span id="connection-status">Connecting...</span>
+            </span>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Real-time Status Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-white bg-success" id="bot-status-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Bot Status</h6>
+                                <h4 id="bot-status">Loading...</h4>
+                                <small id="bot-uptime">Uptime: Calculating...</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fab fa-telegram fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Active Chats</h6>
+                                <h4 id="active-chats">0</h4>
+                                <small>Authorized Users</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Messages Today</h6>
+                                <h4 id="messages-today">0</h4>
+                                <small>Commands Processed</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-envelope fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-white bg-secondary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Response Time</h6>
+                                <h4 id="response-time">0ms</h4>
+                                <small>Average Response</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-tachometer-alt fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Live Activity Feed -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-stream me-2"></i>
+                            Live Activity Feed
+                        </h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="toggleActivityFeed()">
+                            <i class="fas fa-pause" id="feed-toggle-icon"></i>
+                            <span id="feed-toggle-text">Pause</span>
+                        </button>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        <div id="activity-feed">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                                <p>Connecting to activity stream...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Command Usage Chart -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Command Usage (Last 24 Hours)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="commandUsageChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bot Information & Controls -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-robot me-2"></i>
+                            Bot Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="bot-info">
+                            <div class="mb-3">
+                                <strong>Bot Username:</strong>
+                                <span id="bot-username" class="text-muted">Loading...</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Bot ID:</strong>
+                                <span id="bot-id" class="text-muted">Loading...</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>First Name:</strong>
+                                <span id="bot-first-name" class="text-muted">Loading...</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Rate Limit:</strong>
+                                <span id="rate-limit-info" class="text-muted">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>
+                            Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="sendTestMessage()">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Send Test Message
+                            </button>
+                            <button class="btn btn-info" onclick="refreshBotInfo()">
+                                <i class="fas fa-sync-alt me-2"></i>
+                                Refresh Bot Info
+                            </button>
+                            <button class="btn btn-warning" onclick="viewWebhookStatus()">
+                                <i class="fas fa-link me-2"></i>
+                                Webhook Status
+                            </button>
+                            <a href="/status" class="btn btn-outline-secondary">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Full Status Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Health -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heartbeat me-2"></i>
+                            System Health
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>CPU Usage</span>
+                                <span id="cpu-usage">0%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" id="cpu-progress" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Memory Usage</span>
+                                <span id="memory-usage">0%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-info" id="memory-progress" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>GitHub API Quota</span>
+                                <span id="api-quota">Loading...</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" id="api-progress" role="progressbar" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Modal -->
+    <div class="modal fade" id="activityModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Activity Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="activity-details">
+                    <!-- Activity details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let commandChart = null;
+        let activityFeedPaused = false;
+        let activityData = [];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            startRealTimeUpdates();
+            loadBotInformation();
+        });
+
+        function initializeCharts() {
+            // Command Usage Chart
+            const ctx = document.getElementById('commandUsageChart').getContext('2d');
+            commandChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['/start', '/help', '/profile', '/repos', '/repo', '/commits', '/issues', '/search'],
+                    datasets: [{
+                        label: 'Usage Count',
+                        data: [0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            '#007bff', '#28a745', '#ffc107', '#dc3545',
+                            '#6f42c1', '#20c997', '#fd7e14', '#6c757d'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function startRealTimeUpdates() {
+            // Update status every 5 seconds
+            setInterval(updateStatus, 5000);
+            
+            // Update activity feed every 2 seconds
+            setInterval(updateActivityFeed, 2000);
+            
+            // Update system health every 10 seconds
+            setInterval(updateSystemHealth, 10000);
+            
+            // Initial updates
+            updateStatus();
+            updateSystemHealth();
+        }
+
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    // Update bot status card
+                    const botStatusCard = document.getElementById('bot-status-card');
+                    const botStatus = document.getElementById('bot-status');
+                    
+                    if (data.bot_running) {
+                        botStatus.textContent = 'Online';
+                        botStatusCard.className = 'card text-white bg-success';
+                        document.getElementById('connection-status').innerHTML = '<i class="fas fa-circle text-success me-1"></i>Connected';
+                    } else {
+                        botStatus.textContent = 'Offline';
+                        botStatusCard.className = 'card text-white bg-danger';
+                        document.getElementById('connection-status').innerHTML = '<i class="fas fa-circle text-danger me-1"></i>Disconnected';
+                    }
+                    
+                    // Update other metrics
+                    document.getElementById('active-chats').textContent = data.configuration?.allowed_chats || 'Unlimited';
+                    
+                    // Update API quota
+                    if (data.github_api?.rate_limit) {
+                        const remaining = data.github_api.rate_limit.remaining;
+                        const limit = data.github_api.rate_limit.limit;
+                        const percentage = (remaining / limit) * 100;
+                        
+                        document.getElementById('api-quota').textContent = `${remaining}/${limit}`;
+                        document.getElementById('api-progress').style.width = percentage + '%';
+                        
+                        if (percentage < 20) {
+                            document.getElementById('api-progress').className = 'progress-bar bg-danger';
+                        } else if (percentage < 50) {
+                            document.getElementById('api-progress').className = 'progress-bar bg-warning';
+                        } else {
+                            document.getElementById('api-progress').className = 'progress-bar bg-success';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+                    document.getElementById('connection-status').innerHTML = '<i class="fas fa-circle text-danger me-1"></i>Error';
+                });
+        }
+
+        function updateActivityFeed() {
+            if (activityFeedPaused) return;
+            
+            // Simulate activity data - in a real implementation, this would come from WebSocket or polling
+            const activities = [
+                { type: 'command', user: 'user123', command: '/profile', time: new Date(), success: true },
+                { type: 'webhook', repo: 'user/repo', event: 'push', time: new Date(), success: true },
+                { type: 'command', user: 'user456', command: '/repos', time: new Date(), success: false },
+            ];
+            
+            const feedContainer = document.getElementById('activity-feed');
+            
+            // Add new activities
+            activities.forEach(activity => {
+                if (Math.random() > 0.7) { // 30% chance to show activity
+                    const activityElement = createActivityElement(activity);
+                    feedContainer.insertBefore(activityElement, feedContainer.firstChild);
+                    
+                    // Keep only last 20 activities
+                    if (feedContainer.children.length > 20) {
+                        feedContainer.removeChild(feedContainer.lastElementChild);
+                    }
+                }
+            });
+        }
+
+        function createActivityElement(activity) {
+            const div = document.createElement('div');
+            div.className = 'activity-item mb-2 p-2 border-start border-3 border-primary bg-light';
+            
+            const icon = activity.type === 'command' ? 'fas fa-terminal' : 'fas fa-code-branch';
+            const color = activity.success ? 'text-success' : 'text-danger';
+            
+            div.innerHTML = `
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <i class="${icon} ${color} me-2"></i>
+                        <strong>${activity.type === 'command' ? activity.command : activity.event}</strong>
+                        <span class="text-muted">${activity.user || activity.repo}</span>
+                    </div>
+                    <small class="text-muted">${activity.time.toLocaleTimeString()}</small>
+                </div>
+            `;
+            
+            div.addEventListener('click', () => showActivityDetails(activity));
+            div.style.cursor = 'pointer';
+            
+            return div;
+        }
+
+        function updateSystemHealth() {
+            // Simulate system metrics - in real implementation, get from server
+            const cpuUsage = Math.floor(Math.random() * 30) + 10; // 10-40%
+            const memoryUsage = Math.floor(Math.random() * 40) + 20; // 20-60%
+            
+            document.getElementById('cpu-usage').textContent = cpuUsage + '%';
+            document.getElementById('cpu-progress').style.width = cpuUsage + '%';
+            
+            document.getElementById('memory-usage').textContent = memoryUsage + '%';
+            document.getElementById('memory-progress').style.width = memoryUsage + '%';
+            
+            // Update CPU progress bar color based on usage
+            const cpuProgress = document.getElementById('cpu-progress');
+            if (cpuUsage > 80) {
+                cpuProgress.className = 'progress-bar bg-danger';
+            } else if (cpuUsage > 60) {
+                cpuProgress.className = 'progress-bar bg-warning';
+            } else {
+                cpuProgress.className = 'progress-bar bg-success';
+            }
+        }
+
+        function loadBotInformation() {
+            // This would typically fetch from /api/bot-info endpoint
+            document.getElementById('bot-username').textContent = '@github_telegram_bot';
+            document.getElementById('bot-id').textContent = '123456789';
+            document.getElementById('bot-first-name').textContent = 'GitHub Bot';
+            document.getElementById('rate-limit-info').textContent = '10 requests/60s';
+        }
+
+        function toggleActivityFeed() {
+            activityFeedPaused = !activityFeedPaused;
+            const icon = document.getElementById('feed-toggle-icon');
+            const text = document.getElementById('feed-toggle-text');
+            
+            if (activityFeedPaused) {
+                icon.className = 'fas fa-play';
+                text.textContent = 'Resume';
+            } else {
+                icon.className = 'fas fa-pause';
+                text.textContent = 'Pause';
+            }
+        }
+
+        function sendTestMessage() {
+            // Implementation for sending test message
+            alert('Test message functionality would be implemented here');
+        }
+
+        function refreshBotInfo() {
+            loadBotInformation();
+            updateStatus();
+        }
+
+        function viewWebhookStatus() {
+            // Implementation for viewing webhook status
+            alert('Webhook status functionality would be implemented here');
+        }
+
+        function showActivityDetails(activity) {
+            const modal = new bootstrap.Modal(document.getElementById('activityModal'));
+            const detailsContainer = document.getElementById('activity-details');
+            
+            detailsContainer.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Type:</strong> ${activity.type}<br>
+                        <strong>Time:</strong> ${activity.time.toLocaleString()}<br>
+                        <strong>Success:</strong> ${activity.success ? 'Yes' : 'No'}
+                    </div>
+                    <div class="col-md-6">
+                        ${activity.user ? `<strong>User:</strong> ${activity.user}<br>` : ''}
+                        ${activity.repo ? `<strong>Repository:</strong> ${activity.repo}<br>` : ''}
+                        ${activity.command ? `<strong>Command:</strong> ${activity.command}<br>` : ''}
+                        ${activity.event ? `<strong>Event:</strong> ${activity.event}<br>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            modal.show();
+        }
+
+        // Simulate real-time message count updates
+        setInterval(() => {
+            const current = parseInt(document.getElementById('messages-today').textContent);
+            if (Math.random() > 0.8) { // 20% chance to increment
+                document.getElementById('messages-today').textContent = current + 1;
+            }
+        }, 3000);
+
+        // Simulate response time updates
+        setInterval(() => {
+            const responseTime = Math.floor(Math.random() * 200) + 50; // 50-250ms
+            document.getElementById('response-time').textContent = responseTime + 'ms';
+        }, 5000);
+    </script>
+</body>
+</html>

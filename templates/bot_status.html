@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Status - GitHub-Telegram Sync Bot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fab fa-github me-2"></i>
+                GitHub-Telegram Sync Bot
+            </a>
+            <span class="navbar-text">
+                <i class="fas fa-chart-line me-2"></i>
+                Status Dashboard
+            </span>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Status Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Bot Status</h5>
+                                <h3 id="bot-status-text">Loading...</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-robot fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">GitHub API</h5>
+                                <h3 id="github-status-text">Loading...</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fab fa-github fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">API Remaining</h5>
+                                <h3 id="api-remaining-text">Loading...</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-chart-bar fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Active Chats</h5>
+                                <h3 id="active-chats-text">Loading...</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Status -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Detailed Status Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="detailed-status">
+                            <div class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-bell me-2"></i>
+                            Notification Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="notification-settings">
+                            <div class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            API Usage
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="apiUsageChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-tools me-2"></i>
+                            Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="refreshStatus()">
+                                <i class="fas fa-sync-alt me-2"></i>
+                                Refresh Status
+                            </button>
+                            <a href="/health" class="btn btn-success" target="_blank">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Health Check
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="fas fa-home me-2"></i>
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            Last Updated
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0" id="last-update-time">Never</p>
+                        <small class="text-muted">Auto-refreshes every 15 seconds</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let apiUsageChart = null;
+
+        function updateStatusCards(data) {
+            // Bot Status
+            const botStatusText = document.getElementById('bot-status-text');
+            botStatusText.textContent = data.bot_running ? 'Running' : 'Stopped';
+            botStatusText.parentElement.parentElement.parentElement.className = 
+                `card text-white ${data.bot_running ? 'bg-success' : 'bg-danger'}`;
+
+            // GitHub API Status
+            const githubStatusText = document.getElementById('github-status-text');
+            githubStatusText.textContent = data.github_api.connected ? 'Connected' : 'Disconnected';
+            githubStatusText.parentElement.parentElement.parentElement.className = 
+                `card text-white ${data.github_api.connected ? 'bg-success' : 'bg-danger'}`;
+
+            // API Remaining
+            const apiRemainingText = document.getElementById('api-remaining-text');
+            if (data.github_api.rate_limit) {
+                const remaining = data.github_api.rate_limit.remaining;
+                const limit = data.github_api.rate_limit.limit;
+                apiRemainingText.textContent = `${remaining}/${limit}`;
+                
+                const percentage = (remaining / limit) * 100;
+                let cardClass = 'bg-success';
+                if (percentage < 50) cardClass = 'bg-warning';
+                if (percentage < 20) cardClass = 'bg-danger';
+                
+                apiRemainingText.parentElement.parentElement.parentElement.className = 
+                    `card text-white ${cardClass}`;
+            } else {
+                apiRemainingText.textContent = 'Unknown';
+            }
+
+            // Active Chats
+            document.getElementById('active-chats-text').textContent = 
+                data.configuration.allowed_chats || 'All';
+        }
+
+        function updateDetailedStatus(data) {
+            const detailedStatus = document.getElementById('detailed-status');
+            
+            let statusHtml = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>System Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Bot Status:</strong></td>
+                                <td><span class="badge ${data.bot_running ? 'bg-success' : 'bg-danger'}">${data.bot_running ? 'Running' : 'Stopped'}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>GitHub API:</strong></td>
+                                <td><span class="badge ${data.github_api.connected ? 'bg-success' : 'bg-danger'}">${data.github_api.connected ? 'Connected' : 'Disconnected'}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>GitHub User:</strong></td>
+                                <td><code>${data.configuration.github_username || 'Not configured'}</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rate Limit:</strong></td>
+                                <td><code>${data.configuration.rate_limit}</code></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>API Information</h6>
+                        <table class="table table-sm">
+            `;
+            
+            if (data.github_api.rate_limit) {
+                const resetTime = new Date(data.github_api.rate_limit.reset * 1000);
+                statusHtml += `
+                            <tr>
+                                <td><strong>API Remaining:</strong></td>
+                                <td>${data.github_api.rate_limit.remaining}/${data.github_api.rate_limit.limit}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reset Time:</strong></td>
+                                <td>${resetTime.toLocaleTimeString()}</td>
+                            </tr>
+                `;
+            } else {
+                statusHtml += `
+                            <tr>
+                                <td colspan="2"><em>API rate limit information not available</em></td>
+                            </tr>
+                `;
+            }
+            
+            statusHtml += `
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            detailedStatus.innerHTML = statusHtml;
+        }
+
+        function updateNotificationSettings(data) {
+            const notificationSettings = document.getElementById('notification-settings');
+            
+            const notifications = data.configuration.notifications;
+            notificationSettings.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" ${notifications.push ? 'checked' : ''} disabled>
+                            <label class="form-check-label">
+                                <i class="fas fa-code-branch me-2"></i>Push Events
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" ${notifications.issues ? 'checked' : ''} disabled>
+                            <label class="form-check-label">
+                                <i class="fas fa-bug me-2"></i>Issues
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" ${notifications.pull_requests ? 'checked' : ''} disabled>
+                            <label class="form-check-label">
+                                <i class="fas fa-code-branch me-2"></i>Pull Requests
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" ${notifications.releases ? 'checked' : ''} disabled>
+                            <label class="form-check-label">
+                                <i class="fas fa-tag me-2"></i>Releases
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Notification settings are configured via environment variables
+                    </small>
+                </div>
+            `;
+        }
+
+        function updateApiUsageChart(data) {
+            const ctx = document.getElementById('apiUsageChart').getContext('2d');
+            
+            if (apiUsageChart) {
+                apiUsageChart.destroy();
+            }
+            
+            if (data.github_api.rate_limit) {
+                const remaining = data.github_api.rate_limit.remaining;
+                const used = data.github_api.rate_limit.limit - remaining;
+                
+                apiUsageChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Used', 'Remaining'],
+                        datasets: [{
+                            data: [used, remaining],
+                            backgroundColor: ['#dc3545', '#28a745'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            } else {
+                ctx.fillStyle = '#6c757d';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No data available', ctx.canvas.width / 2, ctx.canvas.height / 2);
+            }
+        }
+
+        function refreshStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('detailed-status').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error: ${data.error}
+                            </div>
+                        `;
+                    } else {
+                        updateStatusCards(data);
+                        updateDetailedStatus(data);
+                        updateNotificationSettings(data);
+                        updateApiUsageChart(data);
+                    }
+                    
+                    document.getElementById('last-update-time').textContent = 
+                        new Date().toLocaleString();
+                })
+                .catch(error => {
+                    console.error('Error fetching status:', error);
+                    document.getElementById('detailed-status').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Failed to fetch status information
+                        </div>
+                    `;
+                });
+        }
+
+        // Initial load
+        refreshStatus();
+        
+        // Auto-refresh every 15 seconds
+        setInterval(refreshStatus, 15000);
+    </script>
+</body>
+</html>

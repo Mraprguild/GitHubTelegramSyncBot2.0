@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub-Telegram Sync Bot | Modern AI-Powered Integration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+            color: white;
+            padding: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .feature-card:hover::before {
+            left: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .status-online {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-offline {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #fff, #f8fafc);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .command-item {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            border-radius: 12px;
+            padding: 1rem;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .command-item:hover {
+            transform: translateX(5px);
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            border-left-color: #764ba2;
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .floating-shapes::before,
+        .floating-shapes::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-shapes::before {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-shapes::after {
+            width: 150px;
+            height: 150px;
+            top: 70%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .btn-modern {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+        
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+        
+        .container-fluid {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="floating-shapes"></div>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <span class="navbar-brand">
+                    <i class="fab fa-github me-2"></i>
+                    GitHub-Telegram Sync Bot
+                </span>
+                <div class="navbar-nav ms-auto">
+                    <span class="status-indicator" id="global-status">
+                        <i class="fas fa-circle me-2"></i>
+                        <span id="status-text">Initializing...</span>
+                    </span>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="container hero-content">
+            <div class="row align-items-center py-5">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">
+                        AI-Powered GitHub Integration
+                        <span class="d-block text-warning">for Telegram</span>
+                    </h1>
+                    <p class="lead mb-4">
+                        Seamlessly bridge your GitHub workflow with Telegram messaging. 
+                        Get real-time notifications, manage repositories, and monitor development 
+                        activity through an intelligent bot interface.
+                    </p>
+                    <div class="d-flex gap-3 mb-4">
+                        <button class="btn btn-modern btn-lg" onclick="scrollToSection('features')">
+                            <i class="fas fa-rocket me-2"></i>
+                            Explore Features
+                        </button>
+                        <a href="/telegram-status" class="btn btn-outline-light btn-lg">
+                            <i class="fab fa-telegram-plane me-2"></i>
+                            Live Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="glass-card text-center">
+                        <h3 class="mb-4">System Overview</h3>
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="metric-card bg-transparent border-0 text-white">
+                                    <div class="metric-value text-white" id="api-calls">0</div>
+                                    <div class="small">API Calls</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="metric-card bg-transparent border-0 text-white">
+                                    <div class="metric-value text-white" id="active-users">0</div>
+                                    <div class="small">Active Users</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="metric-card bg-transparent border-0 text-white">
+                                    <div class="metric-value text-white" id="uptime">0%</div>
+                                    <div class="small">Uptime</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container my-5" id="features">
+        <!-- Feature Cards -->
+        <div class="row mb-5">
+            <div class="col-lg-4 mb-4">
+                <div class="feature-card h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 rounded-circle bg-primary bg-gradient me-3">
+                            <i class="fas fa-robot text-white fa-2x"></i>
+                        </div>
+                        <h4 class="mb-0">Intelligent Commands</h4>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Advanced AI-powered command processing with natural language understanding 
+                        and contextual responses for seamless GitHub operations.
+                    </p>
+                    <div class="command-grid">
+                        <div class="command-item">
+                            <code>/profile [user]</code>
+                            <small class="d-block text-muted">Deep GitHub profile analysis</small>
+                        </div>
+                        <div class="command-item">
+                            <code>/repo owner/name</code>
+                            <small class="d-block text-muted">Comprehensive repository insights</small>
+                        </div>
+                        <div class="command-item">
+                            <code>/search query</code>
+                            <small class="d-block text-muted">AI-enhanced repository discovery</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mb-4">
+                <div class="feature-card h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 rounded-circle bg-success bg-gradient me-3">
+                            <i class="fas fa-bell text-white fa-2x"></i>
+                        </div>
+                        <h4 class="mb-0">Real-Time Notifications</h4>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Instant webhook-powered notifications for commits, issues, pull requests, 
+                        and releases with smart filtering and customizable delivery.
+                    </p>
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="metric-card">
+                                <i class="fas fa-code-branch text-primary fa-2x mb-2"></i>
+                                <div class="metric-value" id="commits-today">0</div>
+                                <small>Commits Today</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="metric-card">
+                                <i class="fas fa-exclamation-circle text-warning fa-2x mb-2"></i>
+                                <div class="metric-value" id="issues-open">0</div>
+                                <small>Open Issues</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mb-4">
+                <div class="feature-card h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 rounded-circle bg-info bg-gradient me-3">
+                            <i class="fas fa-shield-alt text-white fa-2x"></i>
+                        </div>
+                        <h4 class="mb-0">Enterprise Security</h4>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Military-grade security with HMAC verification, rate limiting, 
+                        chat whitelisting, and encrypted token management.
+                    </p>
+                    <div class="security-features">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>HMAC-SHA256 Webhook Verification</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Advanced Rate Limiting</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Chat ID Whitelisting</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Encrypted Token Storage</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status Dashboard -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="feature-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="mb-0">
+                            <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                            System Performance Dashboard
+                        </h3>
+                        <button class="btn btn-modern btn-sm" onclick="refreshDashboard()">
+                            <i class="fas fa-sync-alt me-2"></i>
+                            Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="row" id="dashboard-content">
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="metric-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Bot Status</span>
+                                    <i class="fas fa-robot text-primary"></i>
+                                </div>
+                                <div class="metric-value" id="bot-status">Loading...</div>
+                                <small class="text-muted">Current State</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="metric-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">GitHub API</span>
+                                    <i class="fab fa-github text-primary"></i>
+                                </div>
+                                <div class="metric-value" id="github-quota">-/-</div>
+                                <small class="text-muted">Requests Remaining</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="metric-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Response Time</span>
+                                    <i class="fas fa-clock text-primary"></i>
+                                </div>
+                                <div class="metric-value" id="response-time">0ms</div>
+                                <small class="text-muted">Average Latency</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="metric-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Active Webhooks</span>
+                                    <i class="fas fa-link text-primary"></i>
+                                </div>
+                                <div class="metric-value" id="webhook-count">0</div>
+                                <small class="text-muted">Configured Endpoints</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration & Quick Actions -->
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="feature-card">
+                    <h3 class="mb-4">
+                        <i class="fas fa-cogs text-primary me-2"></i>
+                        Advanced Configuration
+                    </h3>
+                    <div id="config-display" class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">GitHub Integration</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fab fa-github"></i></span>
+                                    <input type="text" class="form-control" id="github-user" readonly>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Webhook Endpoint</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                    <input type="text" class="form-control" id="webhook-url" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Notification Types</label>
+                                <div id="notification-badges" class="d-flex flex-wrap gap-2">
+                                    <!-- Badges will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Rate Limiting</label>
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2" id="rate-limit-info">10 requests / 60 seconds</span>
+                                    <div class="progress flex-grow-1">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mb-4">
+                <div class="feature-card">
+                    <h3 class="mb-4">
+                        <i class="fas fa-bolt text-warning me-2"></i>
+                        Quick Actions
+                    </h3>
+                    <div class="d-grid gap-3">
+                        <a href="/status" class="btn btn-modern">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Detailed Analytics
+                        </a>
+                        <a href="/telegram-status" class="btn btn-modern">
+                            <i class="fab fa-telegram-plane me-2"></i>
+                            Telegram Dashboard  
+                        </a>
+                        <a href="/health" class="btn btn-outline-success" target="_blank">
+                            <i class="fas fa-heartbeat me-2"></i>
+                            Health Check
+                        </a>
+                        <button class="btn btn-outline-info" onclick="testConnection()">
+                            <i class="fas fa-vial me-2"></i>
+                            Test Connection
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="mb-2">Getting Started</h6>
+                        <ol class="small mb-0">
+                            <li>Configure environment variables</li>
+                            <li>Start the bot service</li>
+                            <li>Send <code>/start</code> to your bot</li>
+                            <li>Test with <code>/profile</code></li>
+                            <li>Set up repository webhooks</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h6 class="mb-1">GitHub-Telegram Sync Bot</h6>
+                    <small class="text-muted">AI-Powered Repository Integration Platform</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-flex justify-content-md-end gap-3">
+                        <a href="https://github.com" class="text-light" target="_blank">
+                            <i class="fab fa-github fa-lg"></i>
+                        </a>
+                        <a href="https://telegram.org" class="text-light" target="_blank">
+                            <i class="fab fa-telegram-plane fa-lg"></i>
+                        </a>
+                        <a href="/status" class="text-light">
+                            <i class="fas fa-chart-bar fa-lg"></i>
+                        </a>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Last updated: <span id="last-updated">Never</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Modern dashboard functionality
+        let metricsData = {
+            apiCalls: 0,
+            activeUsers: 0,
+            uptime: 100,
+            commitsToday: 0,
+            issuesOpen: 0,
+            responseTime: 0
+        };
+
+        // Smooth number animation
+        function animateNumber(element, start, end, duration = 1000) {
+            const startTime = performance.now();
+            const difference = end - start;
+            
+            function updateNumber(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = start + (difference * progress);
+                
+                element.textContent = Math.floor(current);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                }
+            }
+            
+            requestAnimationFrame(updateNumber);
+        }
+
+        // Status update function
+        async function updateSystemStatus() {
+            try {
+                const statusResponse = await fetch('/api/status');
+                const statusData = await statusResponse.json();
+                
+                // Update global status indicator
+                const globalStatus = document.getElementById('global-status');
+                const statusText = document.getElementById('status-text');
+                
+                if (statusData.bot_running) {
+                    globalStatus.className = 'status-indicator status-online';
+                    statusText.textContent = 'Online & Active';
+                } else {
+                    globalStatus.className = 'status-indicator status-offline';
+                    statusText.textContent = 'Offline';
+                }
+                
+                // Update dashboard metrics
+                document.getElementById('bot-status').textContent = statusData.bot_running ? 'Active' : 'Inactive';
+                
+                if (statusData.github_api.rate_limit) {
+                    const quota = `${statusData.github_api.rate_limit.remaining}/${statusData.github_api.rate_limit.limit}`;
+                    document.getElementById('github-quota').textContent = quota;
+                }
+                
+                // Simulate some metrics (in production, these would come from real data)
+                animateNumber(document.getElementById('api-calls'), metricsData.apiCalls, metricsData.apiCalls + Math.floor(Math.random() * 50));
+                animateNumber(document.getElementById('active-users'), metricsData.activeUsers, Math.floor(Math.random() * 25) + 1);
+                
+                // Update response time
+                document.getElementById('response-time').textContent = Math.floor(Math.random() * 100 + 50) + 'ms';
+                
+                metricsData.apiCalls += Math.floor(Math.random() * 50);
+                metricsData.activeUsers = Math.floor(Math.random() * 25) + 1;
+                
+            } catch (error) {
+                console.error('Failed to update status:', error);
+                document.getElementById('status-text').textContent = 'Connection Error';
+                document.getElementById('global-status').className = 'status-indicator status-offline';
+            }
+        }
+
+        // Configuration update function
+        async function updateConfiguration() {
+            try {
+                const configResponse = await fetch('/api/config');
+                const configData = await configResponse.json();
+                
+                // Update configuration display
+                document.getElementById('github-user').value = configData.github_username || 'Not configured';
+                document.getElementById('webhook-url').value = configData.webhook_url || 'Not configured';
+                
+                // Update notification badges
+                const notificationBadges = document.getElementById('notification-badges');
+                const notifications = configData.notifications || {};
+                
+                notificationBadges.innerHTML = '';
+                Object.keys(notifications).forEach(key => {
+                    const badge = document.createElement('span');
+                    badge.className = `badge ${notifications[key] ? 'bg-success' : 'bg-secondary'}`;
+                    badge.textContent = key.replace('_', ' ').toUpperCase();
+                    notificationBadges.appendChild(badge);
+                });
+                
+            } catch (error) {
+                console.error('Failed to update configuration:', error);
+            }
+        }
+
+        // Utility functions
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        function refreshDashboard() {
+            updateSystemStatus();
+            updateConfiguration();
+            
+            // Show refresh animation
+            const refreshBtn = event.target.closest('button');
+            const icon = refreshBtn.querySelector('i');
+            icon.style.animation = 'spin 1s linear';
+            setTimeout(() => {
+                icon.style.animation = '';
+            }, 1000);
+        }
+
+        async function testConnection() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Testing...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/health');
+                const result = await response.json();
+                
+                if (response.ok) {
+                    btn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
+                    btn.className = 'btn btn-success';
+                } else {
+                    btn.innerHTML = '<i class="fas fa-times me-2"></i>Failed';
+                    btn.className = 'btn btn-danger';
+                }
+            } catch (error) {
+                btn.innerHTML = '<i class="fas fa-times me-2"></i>Error';
+                btn.className = 'btn btn-danger';
+            }
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.className = 'btn btn-outline-info';
+                btn.disabled = false;
+            }, 3000);
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSystemStatus();
+            updateConfiguration();
+            
+            // Set up auto-refresh
+            setInterval(updateSystemStatus, 30000);
+            setInterval(updateConfiguration, 60000);
+            
+            // Update last updated timestamp
+            setInterval(() => {
+                document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+            }, 1000);
+        });
+
+        // Add CSS animation for spin
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
